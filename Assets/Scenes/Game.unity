@@ -470,9 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6caf710a953b9574e8a9be1e7fefa4fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceSlots:
-  - resourceType: {fileID: 11400000, guid: fb28e2fdd5267e3458a44ca6a77605be, type: 2}
-    amount: 0
+  resourceSlots: []
 --- !u!1 &1304736552
 GameObject:
   m_ObjectHideFlags: 0
