@@ -27,12 +27,6 @@ public class ResourceManager : MonoBehaviour
         return slot != null ? slot.Amount : 0;
     }
 
-    public int GetResourceAmount(string id)
-    {
-        foreach (ResourceSlot resource in resourceSlots) { if (resource.ResourceType.Id == id) return resource.Amount; }
-        return 0;
-    }
-
     public void AddResource(ResourceType resourceType, int amount)
     {
         ResourceSlot slot = resourceSlots.Find(rs => rs.ResourceType == resourceType);

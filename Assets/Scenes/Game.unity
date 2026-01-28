@@ -154,7 +154,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!114 &26237268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,7 +688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011053a229d23ff41966811aaaa6ec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceType: {fileID: 11400000, guid: fb28e2fdd5267e3458a44ca6a77605be, type: 2}
+  resourceType: 0
   amount: -100
 --- !u!1 &771460932
 GameObject:
@@ -1315,7 +1315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011053a229d23ff41966811aaaa6ec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceType: {fileID: 11400000, guid: fb28e2fdd5267e3458a44ca6a77605be, type: 2}
+  resourceType: 0
   amount: 100
 --- !u!1 &1534028250
 GameObject:
@@ -1482,7 +1482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011053a229d23ff41966811aaaa6ec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceType: {fileID: 11400000, guid: 3e443a51d6ff21b4e82328e3bc0d20e9, type: 2}
+  resourceType: 1
   amount: 100
 --- !u!1 &1689794161
 GameObject:
@@ -2271,7 +2271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011053a229d23ff41966811aaaa6ec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceType: {fileID: 11400000, guid: 3e443a51d6ff21b4e82328e3bc0d20e9, type: 2}
+  resourceType: 1
   amount: -100
 --- !u!1 &2046216064
 GameObject:

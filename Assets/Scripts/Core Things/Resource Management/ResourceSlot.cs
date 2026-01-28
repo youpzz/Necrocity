@@ -1,10 +1,11 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public class ResourceSlot
 {
-    private ResourceType resourceType;
-    private int amount;
+    [SerializeField] private ResourceType resourceType;
+    [SerializeField] private int amount;
 
     public ResourceType ResourceType => resourceType;
     public int Amount => amount;

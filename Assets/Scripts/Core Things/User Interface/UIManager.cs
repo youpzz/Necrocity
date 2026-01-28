@@ -14,8 +14,8 @@ public class UIManager : MonoBehaviour
 
     void UpdateResourcesText()
     {
-        dublonsText.text = $"{ResourceManager.Instance.GetResourceAmount("dublons")}";
-        loveText.text = $"{ResourceManager.Instance.GetResourceAmount("love")}";
+        dublonsText.text = $"{ResourceManager.Instance.GetResourceAmount(ResourceType.Dublons)}";
+        loveText.text = $"{ResourceManager.Instance.GetResourceAmount(ResourceType.Love)}";
     }
 
 
