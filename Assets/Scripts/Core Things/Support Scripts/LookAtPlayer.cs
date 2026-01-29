@@ -15,6 +15,6 @@ public class LookAtPlayer : MonoBehaviour
 
         Vector3 direction = targetCamera.transform.position - transform.position;
 
-        transform.rotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.LookRotation(-direction);
     }
 }

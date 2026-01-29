@@ -5,45 +5,52 @@ public class CameraController : MonoBehaviour
 {
     public static CameraController Instance { get; private set; }
 
-    [Header("references")]
+    [Header("References")]
     [SerializeField] private Camera cam;
     [SerializeField] private Transform baseTarget;
     [SerializeField] private Collider worldBounds;
 
-    [Header("orbit dist")]
+    [Header("Orbit Settings")]
     [SerializeField] private float distance = 14f;
 
-    [Header("zoom (fov)")]
+    [Header("Zoom (FOV)")]
     [SerializeField] private float fov = 45f;
     [SerializeField] private float minFov = 25f;
     [SerializeField] private float maxFov = 65f;
     [SerializeField] private float fovZoomSpeed = 0.15f;
 
-    [Header("rotationz")]
+    [Header("Rotation")]
     [SerializeField] private float yaw;
     [SerializeField] private float pitch = 35f;
+
+    [Header("Yaw Limits")]
+    [SerializeField] private bool useYawLimits = false;
+    [SerializeField] private float minYaw = -60f;
+    [SerializeField] private float maxYaw = 60f;
+    [Header("Pitch Limits")]
     [SerializeField] private float minPitch = 20f;
     [SerializeField] private float maxPitch = 70f;
     [SerializeField] private float rotationSpeed = 0.2f;
 
-    [Header("pan")]
+    [Header("Pan")]
     [SerializeField] private float panSpeed = 0.004f;
     [SerializeField] private float verticalPanSpeed = 0.004f;
     [SerializeField] private float minVerticalOffset = -2f;
     [SerializeField] private float maxVerticalOffset = 6f;
 
-    [Header("cam limits btw")]
+    [Header("Limits")]
     [SerializeField] private bool useManualLimits = false;
     [SerializeField] private Vector2 xLimits = new(-10f, 10f);
     [SerializeField] private Vector2 zLimits = new(-10f, 10f);
     [SerializeField] private Vector2 yLimits = new(0f, 5f);
 
-    [Header("smooth")]
+    [Header("Smooth")]
     [SerializeField] private float positionSmooth = 0.08f;
 
     private Vector3 centerOffset;
     private float verticalOffset;
     private Vector3 velocity;
+    private Vector3 initialOffset;
 
     void Awake()
     {
@@ -54,8 +61,12 @@ public class CameraController : MonoBehaviour
         }
 
         Instance = this;
+
         if (cam == null) cam = Camera.main;
         cam.fieldOfView = fov;
+
+        initialOffset = transform.position - baseTarget.position;
+        distance = initialOffset.magnitude;
     }
 
     void Update()
@@ -71,7 +82,7 @@ public class CameraController : MonoBehaviour
 
     private void HandleInput()
     {
-        // ===== Мобилка еба =====
+        // Мобилка еба
         if (Input.touchCount == 1)
         {
             Touch t = Input.GetTouch(0);
@@ -96,7 +107,7 @@ public class CameraController : MonoBehaviour
         }
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-
+        // ПК мышка
         if (Input.GetMouseButton(0))
         {
             yaw += Input.GetAxis("Mouse X") * rotationSpeed * 50f;
@@ -110,24 +121,16 @@ public class CameraController : MonoBehaviour
         }
 
         float wheel = Input.GetAxis("Mouse ScrollWheel");
-
         if (Mathf.Abs(wheel) > 0.0001f) fov -= wheel * 20f;
-
 #endif
     }
 
     void ApplyPan(Vector2 delta)
     {
-        Vector3 right = cam.transform.right;
-        Vector3 forward = cam.transform.forward;
-
-        right.y = 0f;
-        forward.y = 0f;
-
-        right.Normalize();
-        forward.Normalize();
-
-        centerOffset += (-right * delta.x - forward * delta.y) * panSpeed * distance;
+        Vector3 localRight = cam.transform.right;
+        localRight.y = 0f;
+        localRight.Normalize();
+        centerOffset += localRight * delta.x * panSpeed * distance;
 
         verticalOffset += delta.y * verticalPanSpeed * distance;
         verticalOffset = Mathf.Clamp(verticalOffset, minVerticalOffset, maxVerticalOffset);
@@ -140,10 +143,9 @@ public class CameraController : MonoBehaviour
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, Time.deltaTime * 10f);
 
         Vector3 center = baseTarget.position + centerOffset + Vector3.up * verticalOffset;
-        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
-        Vector3 desiredPos = center + rot * Vector3.back * distance;
 
-        desiredPos = ClampPosition(desiredPos);
+        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 desiredPos = center + rot * -Vector3.forward * distance;
 
         transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref velocity, positionSmooth);
         transform.rotation = rot;
@@ -153,46 +155,32 @@ public class CameraController : MonoBehaviour
     {
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         fov = Mathf.Clamp(fov, minFov, maxFov);
+
+        if (useYawLimits)
+        {
+            yaw = Mathf.Clamp(yaw, minYaw, maxYaw);
+        }
     }
 
     void ClampToBounds()
     {
+        Vector3 worldPos = baseTarget.position + centerOffset + Vector3.up * verticalOffset;
+
         if (useManualLimits)
         {
-            Vector3 worldCenter = baseTarget.position + centerOffset;
-            worldCenter.x = Mathf.Clamp(worldCenter.x, xLimits.x, xLimits.y);
-            worldCenter.z = Mathf.Clamp(worldCenter.z, zLimits.x, zLimits.y);
-
-            Vector3 local = worldCenter - baseTarget.position;
-            centerOffset = new Vector3(local.x, 0f, local.z);
+            worldPos.x = Mathf.Clamp(worldPos.x, xLimits.x, xLimits.y);
+            worldPos.y = Mathf.Clamp(worldPos.y, yLimits.x, yLimits.y);
+            worldPos.z = baseTarget.position.z; // фикс Z
         }
         else if (worldBounds != null)
         {
             Bounds b = worldBounds.bounds;
-            Vector3 worldCenter = baseTarget.position + centerOffset;
-            worldCenter.x = Mathf.Clamp(worldCenter.x, b.min.x, b.max.x);
-            worldCenter.z = Mathf.Clamp(worldCenter.z, b.min.z, b.max.z);
-            Vector3 local = worldCenter - baseTarget.position;
-            centerOffset = new Vector3(local.x, 0f, local.z);
-        }
-    }
-
-    Vector3 ClampPosition(Vector3 pos)
-    {
-        if (useManualLimits)
-        {
-            pos.x = Mathf.Clamp(pos.x, xLimits.x, xLimits.y);
-            pos.y = Mathf.Clamp(pos.y, yLimits.x, yLimits.y);
-            pos.z = Mathf.Clamp(pos.z, zLimits.x, zLimits.y);
-        }
-        else if (worldBounds != null)
-        {
-            Bounds b = worldBounds.bounds;
-            pos.x = Mathf.Clamp(pos.x, b.min.x, b.max.x);
-            pos.y = Mathf.Clamp(pos.y, b.min.y, b.max.y);
-            pos.z = Mathf.Clamp(pos.z, b.min.z, b.max.z);
+            worldPos.x = Mathf.Clamp(worldPos.x, b.min.x, b.max.x);
+            worldPos.y = Mathf.Clamp(worldPos.y, b.min.y, b.max.y);
+            worldPos.z = baseTarget.position.z;
         }
 
-        return pos;
+        centerOffset = new Vector3(worldPos.x - baseTarget.position.x, 0f, 0f);
+        verticalOffset = worldPos.y - baseTarget.position.y;
     }
 }

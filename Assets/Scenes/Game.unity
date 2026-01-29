@@ -308,13 +308,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13052616, y: -0, z: -0, w: 0.9914449}
-  m_LocalPosition: {x: 0, y: 7, z: 0}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: -1, y: 10, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,15 +374,18 @@ MonoBehaviour:
   cam: {fileID: 330585545}
   baseTarget: {fileID: 736224879}
   worldBounds: {fileID: 0}
-  distance: 10
-  fov: 45
+  distance: 15
+  fov: 65
   minFov: 25
   maxFov: 65
   fovZoomSpeed: 0.15
-  yaw: 0
-  pitch: 15
-  minPitch: 0
-  maxPitch: 45
+  yaw: -5
+  pitch: 22
+  useYawLimits: 1
+  minYaw: -35
+  maxYaw: 35
+  minPitch: -60
+  maxPitch: 35
   rotationSpeed: 0.01
   panSpeed: 0.001
   verticalPanSpeed: 0.001
@@ -1337,7 +1340,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -1530,6 +1533,7 @@ GameObject:
   - component: {fileID: 1500250433}
   - component: {fileID: 1500250432}
   - component: {fileID: 1500250435}
+  - component: {fileID: 1500250436}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -1632,6 +1636,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1607b696449124446ae9e5521ed711c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1500250436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500250430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9f4319d511f5af4db980d3bb9637262, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slider: {fileID: 1194704156}
+  sliderText: {fileID: 1994170778}
+  tweenDuration: 0.5
 --- !u!1 &1501986665
 GameObject:
   m_ObjectHideFlags: 0
@@ -2234,6 +2253,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1783131959}
+  - component: {fileID: 1783131960}
+  - component: {fileID: 1783131961}
   m_Layer: 0
   m_Name: Mining Building
   m_TagString: Untagged
@@ -2258,6 +2279,42 @@ Transform:
   - {fileID: 1500250431}
   m_Father: {fileID: 543450651797088689}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1783131960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783131958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bed120a93c111a24cab410531949cfb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceType: 0
+  earnSpeed: 10
+  earnLimit: 10
+--- !u!65 &1783131961
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783131958}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.5834146, y: 2.9058173, z: 5.107406}
+  m_Center: {x: 0.5954695, y: -0.5334863, z: 0.9763049}
 --- !u!1 &1862272507
 GameObject:
   m_ObjectHideFlags: 0
