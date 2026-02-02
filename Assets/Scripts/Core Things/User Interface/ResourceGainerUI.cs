@@ -8,12 +8,17 @@ public class ResourceGainerUI : MonoBehaviour
     [SerializeField] private Image slider;
     [SerializeField] private TMP_Text sliderText;
     [SerializeField] private float tweenDuration = 0.5f;
+    
+    [SerializeField] private Button gainButton;
     private ResourceGainer resourceGainer;
     private float currentFill;
 
     void Awake()
     {
         resourceGainer = GetComponentInParent<ResourceGainer>();
+        if (gainButton) gainButton.onClick.AddListener(resourceGainer.Redeem);
+
+
     }
 
     void LateUpdate()

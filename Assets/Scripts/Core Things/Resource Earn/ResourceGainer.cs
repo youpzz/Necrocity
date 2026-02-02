@@ -60,7 +60,7 @@ public class ResourceGainer : MonoBehaviour
 
     void OnMouseDown()
     {
-        Redeem(); // пока через жопу делаем!
+        // тут панель должна открыться с улучшениями
     }
 
 }
