@@ -16,21 +16,19 @@ public class ResourceGainerUI : MonoBehaviour
     void Awake()
     {
         resourceGainer = GetComponentInParent<ResourceGainer>();
-        if (gainButton) gainButton.onClick.AddListener(resourceGainer.Redeem);
-
-
     }
 
-    void LateUpdate()
+    void Start()
     {
-        HandleUI();
+        if (gainButton) gainButton.onClick.AddListener(resourceGainer.Redeem);
+        if (resourceGainer) resourceGainer.onResourcesChanged += UpdateUI;
     }
 
-    void HandleUI()
+    void UpdateUI()
     {
         if (!slider || !resourceGainer || !sliderText) { this.enabled = false; return;}
-        sliderText.text = $"{resourceGainer.EarnAmount}/{resourceGainer.EarnLimit}";
-        float targetFill = Mathf.Clamp01((float)resourceGainer.EarnAmount / resourceGainer.EarnLimit);
+        sliderText.text = $"{resourceGainer.GainAmount}/{resourceGainer.GainLimit}";
+        float targetFill = Mathf.Clamp01((float)resourceGainer.GainAmount / resourceGainer.GainLimit);
 
         if (!Mathf.Approximately(currentFill, targetFill))
         {

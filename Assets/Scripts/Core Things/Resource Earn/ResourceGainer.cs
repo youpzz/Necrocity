@@ -1,17 +1,27 @@
+using System;
 using UnityEngine;
 
 public class ResourceGainer : MonoBehaviour
 {
-    [SerializeField] private ResourceType resourceType;
-    [SerializeField] private int earnSpeed = 5; // скорость дохода, то, за сколько будет произведён максимум ресурса. (В секундах)
-    [SerializeField] private int earnLimit = 100; // лимит по доходу, как в тз
+    public Action onResourcesChanged;
 
-    private int earnAmount = 0; // количество текущее
+    [SerializeField] private BuildingData buildingData;
+
+    private int gainLimit;
+    private int gainTime;
+    private int gainAmount = 0; // количество текущее
     private bool isProducing = true;
     private float produceTimer = 0;
 
-    public int EarnLimit => earnLimit;
-    public int EarnAmount => earnAmount;
+    // ссылки
+    public int GainLimit => buildingData.gainResources[0].gainLimit;
+    public int GainAmount => gainAmount;
+
+    void Awake()
+    {
+        gainLimit = buildingData.gainResources[0].gainLimit;
+        gainTime = buildingData.gainResources[0].gainTime;
+    }
 
     void Update()
     {
@@ -34,33 +44,35 @@ public class ResourceGainer : MonoBehaviour
     void Reset()
     {
         produceTimer = 0f;
-        earnAmount = 0;
+        gainAmount = 0;
         isProducing = true;
+        onResourcesChanged?.Invoke();
     }
 
     void AddProgress()
     {
-        int producePerSec = earnLimit / earnSpeed;
-        earnAmount += producePerSec;
+        int producePerSec = gainLimit / gainTime;
+        gainAmount += producePerSec;
+        onResourcesChanged?.Invoke();
 
-        if (earnAmount >= earnLimit)
+        if (gainAmount >= gainLimit)
         {
-            earnAmount = earnLimit;
+            gainAmount = gainLimit;
             isProducing = false;
         }
     }
 
     public void Redeem()
     {
-        if (earnAmount <= 0) return;
+        if (gainAmount <= 0) return;
 
-        ResourceManager.Instance.AddResource(resourceType, earnAmount);
+        ResourceManager.Instance.AddResource(buildingData.gainResources[0].resourceType, gainAmount);
         Reset();
     }
 
     void OnMouseDown()
     {
-        // тут панель должна открыться с улучшениями
+        UIManager.Instance.ShowBuildingInfo(buildingData); // тут панель должна открыться с улучшениями
     }
 
 }

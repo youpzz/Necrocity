@@ -4,7 +4,7 @@ using DG.Tweening;
 
 public class AnimatedButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] private float _scaleFactor = 0.92f;
+    [SerializeField] private float _scaleFactor = 0.8f;
     [SerializeField] private float _duration = 0.25f;
 
     public void OnPointerDown(PointerEventData eventData)

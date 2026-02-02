@@ -82,6 +82,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleInput()
     {
+        if (UIManager.Instance.AreModalWindowOpened()) return; // чтоб игрок не выёбывался особо, нехуй двигаться пока открыты панели
+        
         // Мобилка еба
         if (Input.touchCount == 1)
         {
