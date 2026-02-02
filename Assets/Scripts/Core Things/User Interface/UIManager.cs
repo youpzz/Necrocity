@@ -41,11 +41,11 @@ public class UIManager : MonoBehaviour
 
     public Sprite GetIcon(ResourceType type) => resourceIcons.GetIcon(type);
 
-    public void ShowBuildingInfo(BuildingData data)
+    public void ShowBuildingInfo(ResourceGainer gainer)
     {
         if (AreModalWindowOpened()) return;
-        
-        buildingInfo.Show(data);
+
+        buildingInfo.Show(gainer);
     }
 
 

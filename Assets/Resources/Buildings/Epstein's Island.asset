@@ -15,5 +15,14 @@ MonoBehaviour:
   buildingName: Epstein's Island
   gainResources:
   - resourceType: 0
+    upgradePrice:
+      resourceType: 0
+      amount: 0
     gainTime: 10
+    gainLimit: 10
+  - resourceType: 1
+    upgradePrice:
+      resourceType: 0
+      amount: 100
+    gainTime: 20
     gainLimit: 10

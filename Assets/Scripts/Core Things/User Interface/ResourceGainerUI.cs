@@ -22,6 +22,8 @@ public class ResourceGainerUI : MonoBehaviour
     {
         if (gainButton) gainButton.onClick.AddListener(resourceGainer.Redeem);
         if (resourceGainer) resourceGainer.onResourcesChanged += UpdateUI;
+
+        UpdateUI();
     }
 
     void UpdateUI()

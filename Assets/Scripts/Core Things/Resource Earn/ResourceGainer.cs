@@ -9,18 +9,19 @@ public class ResourceGainer : MonoBehaviour
 
     private int gainLimit;
     private int gainTime;
-    private int gainAmount = 0; // количество текущее
+    private float gainAmount = 0; // количество текущее
     private bool isProducing = true;
     private float produceTimer = 0;
+    private int level = 1;
 
     // ссылки
-    public int GainLimit => buildingData.gainResources[0].gainLimit;
-    public int GainAmount => gainAmount;
+    public int GainLimit => gainLimit;
+    public int GainAmount => Mathf.FloorToInt(gainAmount);
 
     void Awake()
     {
-        gainLimit = buildingData.gainResources[0].gainLimit;
-        gainTime = buildingData.gainResources[0].gainTime;
+        gainLimit = buildingData.gainResources[level - 1].gainLimit;
+        gainTime = buildingData.gainResources[level - 1].gainTime;
     }
 
     void Update()
@@ -51,7 +52,7 @@ public class ResourceGainer : MonoBehaviour
 
     void AddProgress()
     {
-        int producePerSec = gainLimit / gainTime;
+        float producePerSec = (float)gainLimit / gainTime;
         gainAmount += producePerSec;
         onResourcesChanged?.Invoke();
 
@@ -65,14 +66,29 @@ public class ResourceGainer : MonoBehaviour
     public void Redeem()
     {
         if (gainAmount <= 0) return;
-
-        ResourceManager.Instance.AddResource(buildingData.gainResources[0].resourceType, gainAmount);
+        
+        ResourceManager.Instance.AddResource(buildingData.gainResources[level - 1].resourceType, Mathf.FloorToInt(gainAmount));
         Reset();
+    }
+
+    public void AddLevel()
+    {
+        if (level >= buildingData.gainResources.Length) return;
+
+        if (buildingData.gainResources[level - 1].resourceType != buildingData.gainResources[level].resourceType) Redeem();
+
+        level++;
+        gainLimit = buildingData.gainResources[level - 1].gainLimit;
+        gainTime = buildingData.gainResources[level - 1].gainTime;
+        onResourcesChanged?.Invoke();
     }
 
     void OnMouseDown()
     {
-        UIManager.Instance.ShowBuildingInfo(buildingData); // тут панель должна открыться с улучшениями
+        UIManager.Instance.ShowBuildingInfo(this); // тут панель должна открыться с улучшениями
     }
+
+    public BuildingData Data => buildingData;
+    public int Level => level;
 
 }

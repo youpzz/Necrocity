@@ -54,6 +54,14 @@ public class ResourceManager : MonoBehaviour
         return false;
     }
 
+    public bool CanSpendResource(ResourceType resourceType, int amount)
+    {
+        ResourceSlot slot = resourceSlots.Find(rs => rs.ResourceType == resourceType);
+
+        if (slot != null && slot.Amount >= amount) return true;
+        return false;
+    }
+
 
 
 }
