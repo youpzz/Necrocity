@@ -361,7 +361,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.054326124, y: 0.23200001}
   m_AnchorMax: {x: 0.937674, y: 0.85272855}
-  m_AnchoredPosition: {x: -0.000030517578, y: -1.4958038}
+  m_AnchoredPosition: {x: -0.000061035156, y: -1.4958038}
   m_SizeDelta: {x: -4.2241, y: 2.9915009}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &119892491
@@ -3433,7 +3433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.14180528, y: 0.049546033}
   m_AnchorMax: {x: 0.85200006, y: 0.19845401}
-  m_AnchoredPosition: {x: 1.2559967, y: -0.6228943}
+  m_AnchoredPosition: {x: 1.2559814, y: -0.6228943}
   m_SizeDelta: {x: 6.6033, y: -2.1518998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1588258322
@@ -4114,6 +4114,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1783131959}
   - component: {fileID: 1783131960}
+  - component: {fileID: 1783131962}
   - component: {fileID: 1783131961}
   m_Layer: 0
   m_Name: Mining Building
@@ -4173,6 +4174,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.5834146, y: 2.9058173, z: 5.107406}
   m_Center: {x: 0.5954695, y: -0.5334863, z: 0.9763049}
+--- !u!114 &1783131962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783131958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f66c10d4dc63d643b70629845b80b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceGainer: {fileID: 1783131960}
+  levelChanges:
+  - buildingParts:
+    - {fileID: 3855315360009580484}
+    level: 2
+  - buildingParts:
+    - {fileID: 2831689167131960962}
+    level: 3
 --- !u!1 &1862272507
 GameObject:
   m_ObjectHideFlags: 0
@@ -4968,7 +4989,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000045776367, y: -30}
+  m_AnchoredPosition: {x: 0.000061035156, y: -30}
   m_SizeDelta: {x: -43.455, y: 41.8059}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2078812087

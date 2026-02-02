@@ -4,6 +4,7 @@ using UnityEngine;
 public class ResourceGainer : MonoBehaviour
 {
     public Action onResourcesChanged;
+    public Action onLevelChanged;
 
     [SerializeField] private BuildingData buildingData;
 
@@ -81,6 +82,7 @@ public class ResourceGainer : MonoBehaviour
         gainLimit = buildingData.gainResources[level - 1].gainLimit;
         gainTime = buildingData.gainResources[level - 1].gainTime;
         onResourcesChanged?.Invoke();
+        onLevelChanged?.Invoke();
     }
 
     void OnMouseDown()

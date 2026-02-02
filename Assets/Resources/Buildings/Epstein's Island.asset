@@ -23,6 +23,12 @@ MonoBehaviour:
   - resourceType: 1
     upgradePrice:
       resourceType: 0
-      amount: 100
+      amount: 20
     gainTime: 20
     gainLimit: 10
+  - resourceType: 1
+    upgradePrice:
+      resourceType: 1
+      amount: 50
+    gainTime: 100
+    gainLimit: 100
