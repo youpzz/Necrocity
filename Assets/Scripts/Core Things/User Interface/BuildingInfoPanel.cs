@@ -79,9 +79,6 @@ public class BuildingInfoPanel : MonoBehaviour
 
         currentGainer.AddLevel();
         Show(currentGainer);
-
     }
-
-
 
 }
