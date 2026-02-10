@@ -22,7 +22,7 @@ public class BuildingInfoPanel : MonoBehaviour
 
     void Start()
     {
-        if (!uiPanel) uiPanel = GetComponent<UIPanel>(); // подстраховка еба
+        if (!uiPanel) uiPanel = GetComponent<UIPanel>(); // подстраховка 
         upgradeButton.onClick.AddListener(UpgradeBuilding);
     }
 

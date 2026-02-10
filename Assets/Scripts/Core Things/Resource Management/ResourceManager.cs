@@ -5,7 +5,7 @@ using UnityEngine;
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance { get; private set; }
-    public Action onResourcesChanged; // делаем заебатое событие, чтоб не ковырять каждый раз этот скрипт, а то будет какашко
+    public Action onResourcesChanged; // делаем событие, чтоб не ковырять каждый раз этот скрипт, а то будет какашко
     [SerializeField] private List<ResourceSlot> resourceSlots = new List<ResourceSlot>();
     
 

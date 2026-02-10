@@ -19,6 +19,9 @@ public class ResourceGainer : MonoBehaviour
     public int GainLimit => gainLimit;
     public int GainAmount => Mathf.FloorToInt(gainAmount);
 
+    public BuildingData Data => buildingData;
+    public int Level => level;
+
     void Awake()
     {
         gainLimit = buildingData.gainResources[level - 1].gainLimit;
@@ -90,7 +93,6 @@ public class ResourceGainer : MonoBehaviour
         UIManager.Instance.ShowBuildingInfo(this); // тут панель должна открыться с улучшениями
     }
 
-    public BuildingData Data => buildingData;
-    public int Level => level;
+    
 
 }

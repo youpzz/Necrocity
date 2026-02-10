@@ -17,7 +17,7 @@ public class BuildingVisual : MonoBehaviour
     void UpdateVisual()
     {
         foreach (var change in levelChanges) if (change.level == resourceGainer.Level) {foreach (var obj in change.buildingParts) {obj.SetActive(true); }};
-        // пока так через жопу делаем
+        // пока так через делаем
     }
 
 #if UNITY_EDITOR

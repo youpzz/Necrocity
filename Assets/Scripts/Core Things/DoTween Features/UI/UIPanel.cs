@@ -107,7 +107,7 @@ public class UIPanel : MonoBehaviour
         }
     }
 
-    // ========== Анимки ебать ==========
+    // ========== Анимки ==========
 
     void PlayFadeScaleShow()
     {
