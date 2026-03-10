@@ -1,188 +1,190 @@
 using UnityEngine;
 
-[DefaultExecutionOrder(100)]
 public class CameraController : MonoBehaviour
 {
-    public static CameraController Instance { get; private set; }
-
     [Header("References")]
     [SerializeField] private Camera cam;
     [SerializeField] private Transform baseTarget;
-    [SerializeField] private Collider worldBounds;
 
-    [Header("Orbit Settings")]
-    [SerializeField] private float distance = 14f;
-
-    [Header("Zoom (FOV)")]
+    [Header("FOV")]
     [SerializeField] private float fov = 45f;
     [SerializeField] private float minFov = 25f;
     [SerializeField] private float maxFov = 65f;
-    [SerializeField] private float fovZoomSpeed = 0.15f;
 
     [Header("Rotation")]
     [SerializeField] private float yaw;
     [SerializeField] private float pitch = 35f;
-
-    [Header("Yaw Limits")]
-    [SerializeField] private bool useYawLimits = false;
-    [SerializeField] private float minYaw = -60f;
-    [SerializeField] private float maxYaw = 60f;
-    [Header("Pitch Limits")]
     [SerializeField] private float minPitch = 20f;
     [SerializeField] private float maxPitch = 70f;
-    [SerializeField] private float rotationSpeed = 0.2f;
+    [SerializeField] private bool useYawLimits = false;
+    [SerializeField] private float minYaw = -5f;
+    [SerializeField] private float maxYaw = 35f;
 
     [Header("Pan")]
-    [SerializeField] private float panSpeed = 0.004f;
-    [SerializeField] private float verticalPanSpeed = 0.004f;
     [SerializeField] private float minVerticalOffset = -2f;
     [SerializeField] private float maxVerticalOffset = 6f;
+
+    [Header("Sensitivity")]
+    [SerializeField] private float rotateSensitivity = 0.035f;
+    [SerializeField] private float panSensitivity = 0.04f;
+    [SerializeField] private float scrollSensitivity = 20f;
+    [SerializeField] private float pinchSensitivity = 0.15f;
+    [SerializeField] private float fovSmooth = 10f;
+    [SerializeField] private float positionSmooth = 0.08f;
 
     [Header("Limits")]
     [SerializeField] private bool useManualLimits = false;
     [SerializeField] private Vector2 xLimits = new(-10f, 10f);
-    [SerializeField] private Vector2 zLimits = new(-10f, 10f);
     [SerializeField] private Vector2 yLimits = new(0f, 5f);
 
-    [Header("Smooth")]
-    [SerializeField] private float positionSmooth = 0.08f;
 
-    private Vector3 centerOffset;
-    private float verticalOffset;
-    private Vector3 velocity;
-    private Vector3 initialOffset;
+    private float _distance;
+    private Vector3 _centerOffset;
+    private float _verticalOffset;
+    private Vector3 _velocity;
+
+
+    private Vector2 _rotateDelta;
+    private Vector2 _panDelta;
+
+
+    private Transform _camTransform;
+
+
+    private bool _rotateHeld;
+    private bool _middleHeld;
+
+    private float _prevPinchDist;
+    private bool _pinchActive;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         if (cam == null) cam = Camera.main;
+        _camTransform = cam.transform;
         cam.fieldOfView = fov;
 
-        initialOffset = transform.position - baseTarget.position;
-        distance = initialOffset.magnitude;
+        _distance = (transform.position - baseTarget.position).magnitude;
+    }
+
+    void OnEnable()
+    {
+        InputManager.Instance.OnLook += HandleLook;
+        InputManager.Instance.OnPan += HandlePan;
+        InputManager.Instance.OnScroll += HandleScroll;
+        InputManager.Instance.OnPinch += HandlePinch;
+        InputManager.Instance.OnRotateChanged += v => _rotateHeld = v;
+        InputManager.Instance.OnMiddleMouseChanged += v => _middleHeld = v;
+    }
+
+    void OnDisable()
+    {
+        if (InputManager.Instance == null) return;
+        InputManager.Instance.OnLook -= HandleLook;
+        InputManager.Instance.OnPan -= HandlePan;
+        InputManager.Instance.OnScroll -= HandleScroll;
+        InputManager.Instance.OnPinch -= HandlePinch;
+        InputManager.Instance.OnRotateChanged -= v => _rotateHeld = v;
+        InputManager.Instance.OnMiddleMouseChanged -= v => _middleHeld = v;
+    }
+
+    private void HandleLook(Vector2 delta)
+    {
+        if (IsBlocked()) return;
+
+        if (_middleHeld)
+            _panDelta += delta * panSensitivity;
+        else if (_rotateHeld || IsTouchSingleFinger())
+            _rotateDelta += delta * rotateSensitivity;
+    }
+
+    // Pan fires only on touch second finger
+    private void HandlePan(Vector2 delta)
+    {
+        if (IsBlocked() || _middleHeld) return;
+        _panDelta += delta * panSensitivity;
+    }
+
+    private void HandleScroll(float scroll)
+    {
+        if (IsBlocked()) return;
+        fov -= scroll * scrollSensitivity;
+    }
+
+    private void HandlePinch(float currDist)
+    {
+        if (IsBlocked()) return;
+
+        if (_pinchActive && currDist > 0f)
+            fov += (_prevPinchDist - currDist) * pinchSensitivity;
+
+        _prevPinchDist = currDist;
+        _pinchActive = currDist > 0f;
     }
 
     void Update()
     {
-        HandleInput();
+        if (_rotateDelta != Vector2.zero)
+        {
+            yaw += _rotateDelta.x;
+            pitch -= _rotateDelta.y;
+            _rotateDelta = Vector2.zero;
+        }
+
+        if (_panDelta != Vector2.zero)
+        {
+            ApplyPan(_panDelta);
+            _panDelta = Vector2.zero;
+        }
+
         ClampValues();
     }
 
     void LateUpdate()
     {
-        UpdateCamera();
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, Time.deltaTime * fovSmooth);
+
+        Vector3 center = baseTarget.position + _centerOffset + Vector3.up * _verticalOffset;
+        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 desiredPos = center + rot * new Vector3(0f, 0f, -_distance);
+
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref _velocity, positionSmooth);
+        transform.rotation = rot;
     }
 
-    private void HandleInput()
+    private void ApplyPan(Vector2 delta)
     {
-        if (UIManager.Instance.AreModalWindowOpened()) return; // чтоб игрок не выёбывался особо, нехуй двигаться пока открыты панели
-        
-        // Мобилка еба
-        if (Input.touchCount == 1)
-        {
-            Touch t = Input.GetTouch(0);
-            if (t.phase == TouchPhase.Moved)
-            {
-                yaw += t.deltaPosition.x * rotationSpeed;
-                pitch -= t.deltaPosition.y * rotationSpeed;
-            }
-        }
-        else if (Input.touchCount == 2)
-        {
-            Touch t0 = Input.GetTouch(0);
-            Touch t1 = Input.GetTouch(1);
+        Vector3 right = _camTransform.right;
+        right.y = 0f;
+        right.Normalize();
 
-            float prevDist = Vector2.Distance(t0.position - t0.deltaPosition, t1.position - t1.deltaPosition);
-            float currDist = Vector2.Distance(t0.position, t1.position);
-
-            fov += (prevDist - currDist) * fovZoomSpeed;
-
-            Vector2 avgDelta = (t0.deltaPosition + t1.deltaPosition) * 0.5f;
-            ApplyPan(avgDelta);
-        }
-
-#if UNITY_EDITOR || UNITY_STANDALONE
-        // ПК мышка
-        if (Input.GetMouseButton(0))
-        {
-            yaw += Input.GetAxis("Mouse X") * rotationSpeed * 50f;
-            pitch -= Input.GetAxis("Mouse Y") * rotationSpeed * 50f;
-        }
-
-        if (Input.GetMouseButton(2))
-        {
-            Vector2 delta = new(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-            ApplyPan(delta * 10f);
-        }
-
-        float wheel = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(wheel) > 0.0001f) fov -= wheel * 20f;
-#endif
-    }
-
-    void ApplyPan(Vector2 delta)
-    {
-        Vector3 localRight = cam.transform.right;
-        localRight.y = 0f;
-        localRight.Normalize();
-        centerOffset += localRight * delta.x * panSpeed * distance;
-
-        verticalOffset += delta.y * verticalPanSpeed * distance;
-        verticalOffset = Mathf.Clamp(verticalOffset, minVerticalOffset, maxVerticalOffset);
+        _centerOffset += right * (delta.x * _distance);
+        _verticalOffset = Mathf.Clamp(_verticalOffset + delta.y * _distance, minVerticalOffset, maxVerticalOffset);
 
         ClampToBounds();
     }
 
-    void UpdateCamera()
-    {
-        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, Time.deltaTime * 10f);
-
-        Vector3 center = baseTarget.position + centerOffset + Vector3.up * verticalOffset;
-
-        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
-        Vector3 desiredPos = center + rot * -Vector3.forward * distance;
-
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref velocity, positionSmooth);
-        transform.rotation = rot;
-    }
-
-    void ClampValues()
+    private void ClampValues()
     {
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         fov = Mathf.Clamp(fov, minFov, maxFov);
-
-        if (useYawLimits)
-        {
-            yaw = Mathf.Clamp(yaw, minYaw, maxYaw);
-        }
+        if (useYawLimits) yaw = Mathf.Clamp(yaw, minYaw, maxYaw);
     }
 
-    void ClampToBounds()
+    private void ClampToBounds()
     {
-        Vector3 worldPos = baseTarget.position + centerOffset + Vector3.up * verticalOffset;
+        if (!useManualLimits) return;
 
-        if (useManualLimits)
-        {
-            worldPos.x = Mathf.Clamp(worldPos.x, xLimits.x, xLimits.y);
-            worldPos.y = Mathf.Clamp(worldPos.y, yLimits.x, yLimits.y);
-            worldPos.z = baseTarget.position.z; // фикс Z
-        }
-        else if (worldBounds != null)
-        {
-            Bounds b = worldBounds.bounds;
-            worldPos.x = Mathf.Clamp(worldPos.x, b.min.x, b.max.x);
-            worldPos.y = Mathf.Clamp(worldPos.y, b.min.y, b.max.y);
-            worldPos.z = baseTarget.position.z;
-        }
+        Vector3 pos = baseTarget.position + _centerOffset;
+        pos.y = baseTarget.position.y + _verticalOffset;
 
-        centerOffset = new Vector3(worldPos.x - baseTarget.position.x, 0f, 0f);
-        verticalOffset = worldPos.y - baseTarget.position.y;
+        pos.x = Mathf.Clamp(pos.x, xLimits.x, xLimits.y);
+        pos.y = Mathf.Clamp(pos.y, yLimits.x, yLimits.y);
+        pos.z = baseTarget.position.z;
+
+        _centerOffset = new Vector3(pos.x - baseTarget.position.x, 0f, 0f);
+        _verticalOffset = pos.y - baseTarget.position.y;
     }
+
+    private static bool IsBlocked() => UIManager.Instance.AreModalWindowOpened();
+    private static bool IsTouchSingleFinger() => UnityEngine.InputSystem.Touchscreen.current != null;
 }
