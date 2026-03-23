@@ -6,7 +6,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
     [Header("References")]
-    [SerializeField] private ResourceIconsConfig resourceIcons;
+    [SerializeField] private IconsConfig resourceIcons;
     [SerializeField] private BuildingInfoPanel buildingInfo;
     [Space(10)]
     [SerializeField] private TMP_Text dublonsText;
@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
 #if UNITY_EDITOR
     void OnValidate()
     {
-        if (resourceIcons == null) resourceIcons = GetComponent<ResourceIconsConfig>();
+        if (resourceIcons == null) resourceIcons = GetComponent<IconsConfig>();
         if (buildingInfo == null) buildingInfo = FindFirstObjectByType<BuildingInfoPanel>();
     }
 #endif
