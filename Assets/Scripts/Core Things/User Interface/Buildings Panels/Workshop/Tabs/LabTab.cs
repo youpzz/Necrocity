@@ -20,8 +20,8 @@ public class LabTab : BaseComponentTab
         CraftingQueue.Instance.OnCraftCompleted += OnCraftCompleted;
         CraftingQueue.Instance.OnCraftCancelled += RefreshCraftUI;
 
-        if (CraftingQueue.Instance.IsActive)
-            RestoreActiveState();
+        if (CraftingQueue.Instance.IsActive || CraftingQueue.Instance.IsReadyToCollect) RestoreActiveState();
+
 
         RefreshCraftUI();
     }
@@ -41,7 +41,6 @@ public class LabTab : BaseComponentTab
         progressText.text = $"{FormatTime(q.Elapsed)} / {FormatTime(q.Duration)}";
     }
 
-
     protected override ComponentData[] GetComponentDatas() =>
         workshopPanel.GetAllComponentDatas;
 
@@ -57,10 +56,7 @@ public class LabTab : BaseComponentTab
         RefreshCraftUI();
     }
 
-    private void OnCraftStarted()
-    {
-        RefreshCraftUI();
-    }
+    private void OnCraftStarted() => RefreshCraftUI();
 
     private void OnCraftCompleted(ComponentType _)
     {
@@ -68,30 +64,24 @@ public class LabTab : BaseComponentTab
         RefreshCraftUI();
     }
 
-    // ─── State ─────────────────────────────────────────────────────
-
     private void RestoreActiveState()
     {
         var data = workshopPanel.GetComponentData(CraftingQueue.Instance.CurrentType);
         if (data == null) return;
-
         _selected = data;
-
         base.OnComponentClick(data);
     }
-
-    // ─── Craft UI ──────────────────────────────────────────────────
 
     private void RefreshCraftUI()
     {
         var q = CraftingQueue.Instance;
         bool active = q.IsActive;
+        bool ready = q.IsReadyToCollect;
 
         progressText.gameObject.SetActive(active);
+        if (gridLockOverlay != null) gridLockOverlay.SetActive(active || ready);
 
-
-        if (gridLockOverlay != null)
-            gridLockOverlay.SetActive(active);
+        craftButton.onClick.RemoveAllListeners();
 
         if (active)
         {
@@ -99,14 +89,22 @@ public class LabTab : BaseComponentTab
             craftButton.interactable = false;
             craftButtonText.text = "Крафтится...";
         }
+        else if (ready)
+        {
+            craftButton.interactable = true;
+            craftButtonText.text = "Забрать";
+            craftButton.onClick.AddListener(() =>
+            {
+                CraftingQueue.Instance.Redeem();
+                UpdateUI();
+            });
+        }
         else
         {
             craftButton.interactable = _selected != null;
             craftButtonText.text = "Крафт";
+            craftButton.onClick.AddListener(OnCraftClick);
         }
-
-        craftButton.onClick.RemoveAllListeners();
-        craftButton.onClick.AddListener(OnCraftClick);
     }
 
     private void OnCraftClick()

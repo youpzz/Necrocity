@@ -9,15 +9,45 @@ public class WorkshopSlider : MonoBehaviour
     [Space(5)]
     [SerializeField] private Image componentIcon;
     [SerializeField] private GameObject readyIcon;
+    [Tooltip("Если пусто — ищется в сцене при старте (префаб не в иерархии панели).")]
+    [SerializeField] private WorkshopPanel workshopPanel;
+    [SerializeField] private Button openWorkshopButton;
 
     private float currentFill;
 
+    private void Awake()
+    {
+        if (workshopPanel == null) workshopPanel = FindFirstObjectByType<WorkshopPanel>(FindObjectsInactive.Include);
+    }
+
     private void Start()
     {
+        if (workshopPanel == null) workshopPanel = FindFirstObjectByType<WorkshopPanel>(FindObjectsInactive.Include);
+
+        CraftingQueue.Instance.RestoreCurrentData(workshopPanel);
+
         CraftingQueue.Instance.OnCraftStarted += OnCraftStarted;
         CraftingQueue.Instance.OnCraftCompleted += OnCraftCompleted;
         CraftingQueue.Instance.OnCraftCancelled += OnCraftCancelled;
+        if (openWorkshopButton) openWorkshopButton.onClick.AddListener(OnOpenWorkshopClicked);
+
         UpdateUI();
+    }
+
+    private void OnDestroy()
+    {
+        if (openWorkshopButton) openWorkshopButton.onClick.RemoveListener(OnOpenWorkshopClicked);
+
+        if (CraftingQueue.Instance == null) return;
+        CraftingQueue.Instance.OnCraftStarted -= OnCraftStarted;
+        CraftingQueue.Instance.OnCraftCompleted -= OnCraftCompleted;
+        CraftingQueue.Instance.OnCraftCancelled -= OnCraftCancelled;
+    }
+
+    private static void OnOpenWorkshopClicked()
+    {
+        if (UIManager.Instance != null) UIManager.Instance.ShowWorkshopPanel();
+
     }
 
     private void Update()
@@ -26,41 +56,53 @@ public class WorkshopSlider : MonoBehaviour
         UpdateFill(CraftingQueue.Instance.Progress);
     }
 
-    private void OnCraftStarted()
-    {
-        readyIcon.SetActive(false);
-        var data = CraftingQueue.Instance.CurrentData;
-        if (componentIcon && data != null) componentIcon.sprite = data.icon;
-        UpdateFill(0f);
-    }
+    private void OnCraftStarted() => UpdateUI();
 
-    private void OnCraftCompleted(ComponentType _)
-    {
-        readyIcon.SetActive(true);
-        UpdateFill(1f);
-    }
+    private void OnCraftCompleted(ComponentType _) => UpdateUI();
 
-    private void OnCraftCancelled()
-    {
-        readyIcon.SetActive(false);
-        if (componentIcon) componentIcon.sprite = null;
-        UpdateFill(0f);
-    }
+    private void OnCraftCancelled() => UpdateUI();
 
     private void UpdateUI()
     {
-        bool completed = !CraftingQueue.Instance.IsActive && readyIcon.activeSelf;
-        readyIcon.SetActive(completed);
+        var q = CraftingQueue.Instance;
+        bool show = q.IsActive || q.IsReadyToCollect;
+        if (!show)
+        {
+            if (slider) DOTween.Kill(slider);
+            currentFill = 0f;
+            gameObject.SetActive(false);
+            return;
+        }
 
-        var data = CraftingQueue.Instance.CurrentData;
-        if (componentIcon) componentIcon.sprite = data != null ? data.icon : null;
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
 
-        UpdateFill(CraftingQueue.Instance.Progress);
+        bool ready = q.IsReadyToCollect;
+        if (readyIcon) readyIcon.SetActive(ready);
+
+        Sprite icon = q.CurrentData?.icon ?? GetIcon(q.CurrentType);
+        SetIcon(icon);
+
+        float fillTarget = ready ? 1f : q.Progress;
+        UpdateFill(fillTarget);
+    }
+
+    private void SetIcon(Sprite sprite)
+    {
+        if (!componentIcon) return;
+        componentIcon.sprite = sprite;
+        componentIcon.enabled = sprite != null;
+    }
+
+    private Sprite GetIcon(ComponentType type)
+    {
+        if (workshopPanel == null) return null;
+        return workshopPanel.GetComponentData(type)?.icon;
     }
 
     private void UpdateFill(float target)
     {
-        if (Mathf.Approximately(currentFill, target)) return;
+        if (!slider || Mathf.Approximately(currentFill, target)) return;
 
         DOTween.Kill(slider);
         slider.DOFillAmount(target, tweenDuration).SetEase(Ease.OutCubic);

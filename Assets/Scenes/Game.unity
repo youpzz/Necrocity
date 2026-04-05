@@ -1014,17 +1014,6 @@ MonoBehaviour:
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 4
---- !u!114 &153920272 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3499165400783655181, guid: f856e2b915b15e04eacd9b0769b31fd3, type: 3}
-  m_PrefabInstance: {fileID: 2601044680994718046}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &176213752
 GameObject:
   m_ObjectHideFlags: 0
@@ -9844,11 +9833,6 @@ MonoBehaviour:
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 4
---- !u!1 &1737175528 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2353711535295079350, guid: f856e2b915b15e04eacd9b0769b31fd3, type: 3}
-  m_PrefabInstance: {fileID: 2601044680994718046}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1744944317
 GameObject:
   m_ObjectHideFlags: 0
@@ -11888,13 +11872,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 330585545}
     - target: {fileID: 9134513237918477680, guid: f856e2b915b15e04eacd9b0769b31fd3, type: 3}
-      propertyPath: readyIcon
+      propertyPath: workshopPanel
       value: 
-      objectReference: {fileID: 1737175528}
-    - target: {fileID: 9134513237918477680, guid: f856e2b915b15e04eacd9b0769b31fd3, type: 3}
-      propertyPath: componentIcon
-      value: 
-      objectReference: {fileID: 153920272}
+      objectReference: {fileID: 541897463}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

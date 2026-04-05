@@ -47,21 +47,6 @@ public class WorkshopPanel : MonoBehaviour
         }
     }
 
-    private void CraftItem(ItemData data)
-    {
-        if (!CanCraftItem(data)) return;
-        foreach (var ingredient in data.recipe)
-            InventoryManager.Instance.TrySpendComponent(ingredient.component, ingredient.amount);
-        InventoryManager.Instance.AddItem(data.type, 1);
-    }
-
-    private bool CanCraftItem(ItemData data)
-    {
-        foreach (var ingredient in data.recipe)
-            if (!InventoryManager.Instance.CanSpendComponent(ingredient.component, ingredient.amount)) return false;
-        return true;
-    }
-
     public (Sprite, int)[] BuildIngredients(ItemData.Ingredient[] recipe)
     {
         var result = new (Sprite, int)[recipe.Length];

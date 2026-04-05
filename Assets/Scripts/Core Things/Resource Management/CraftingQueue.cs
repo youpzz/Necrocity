@@ -9,6 +9,7 @@ public class CraftingQueue : MonoBehaviour
     private const string KeyStartTime = "craft_start";
     private const string KeyDuration = "craft_duration";
     private const string KeyActive = "craft_active";
+    private const string KeyReady = "craft_ready";
 
     public event Action OnCraftStarted;
     public event Action<ComponentType> OnCraftCompleted;
@@ -21,6 +22,7 @@ public class CraftingQueue : MonoBehaviour
     public float Progress => IsActive ? Mathf.Clamp01(Elapsed / Duration) : 0f;
     public float Remaining => IsActive ? Mathf.Max(0f, Duration - Elapsed) : 0f;
     public bool IsCompleted => IsActive && Elapsed >= Duration;
+    public bool IsReadyToCollect { get; private set; }
 
     public ComponentData CurrentData { get; private set; }
 
@@ -77,17 +79,42 @@ public class CraftingQueue : MonoBehaviour
         CurrentData = null;
     }
 
+    public void RestoreCurrentData(WorkshopPanel panel)
+    {
+        if (CurrentData != null) return;
+        if (CurrentType == default) return;
+        if (panel == null) panel = FindFirstObjectByType<WorkshopPanel>(FindObjectsInactive.Include);
+
+        if (panel == null) return;
+
+        CurrentData = panel.GetComponentData(CurrentType);
+    }
+
     // ─── Internal ──────────────────────────────────────────────────
 
     private void CompleteCraft()
     {
-        var type = CurrentType;
         IsActive = false;
         _completedOffline = false;
-        ClearState();
-        InventoryManager.Instance.AddComponent(type, 1);
-        OnCraftCompleted?.Invoke(type);
+        IsReadyToCollect = true;
+        Save.Set(KeyReady, true);
+        Save.Delete(KeyActive);
+        Save.Delete(KeyStartTime);
+        Save.Delete(KeyDuration);
+        OnCraftCompleted?.Invoke(CurrentType);
         CurrentData = null;
+    }
+
+
+    public void Redeem()
+    {
+        if (!IsReadyToCollect) return;
+        InventoryManager.Instance.AddComponent(CurrentType, 1);
+        IsReadyToCollect = false;
+        Save.Delete(KeyReady);
+        Save.Delete(KeyType);
+        CurrentType = default;
+        OnCraftCancelled?.Invoke();
     }
 
     // ─── Persistence ───────────────────────────────────────────────
@@ -102,6 +129,13 @@ public class CraftingQueue : MonoBehaviour
 
     private void LoadState()
     {
+        if (Save.Get(KeyReady, false))
+        {
+            CurrentType = (ComponentType)Save.Get(KeyType, 0);
+            IsReadyToCollect = true;
+            return;
+        }
+
         if (!Save.Get(KeyActive, false)) return;
 
         CurrentType = (ComponentType)Save.Get(KeyType, 0);
@@ -109,7 +143,6 @@ public class CraftingQueue : MonoBehaviour
         _startTime = DateTime.FromBinary(long.Parse(Save.Get(KeyStartTime, "0")));
         IsActive = true;
 
-        // Истекло оффлайн — откладываем до Start когда все синглтоны живы
         if (IsCompleted)
         {
             IsActive = false;
