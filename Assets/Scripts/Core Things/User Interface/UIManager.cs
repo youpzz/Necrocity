@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private IconsConfig resourceIcons;
     [SerializeField] private BuildingInfoPanel buildingInfo;
+    [SerializeField] private UIPanel workshopPanel;
     [Space(10)]
     [SerializeField] private TMP_Text dublonsText;
     [SerializeField] private TMP_Text loveText;
@@ -46,11 +47,17 @@ public class UIManager : MonoBehaviour
 
     public Sprite GetIcon(ResourceType type) => resourceIcons.GetIcon(type);
 
-    public void ShowBuildingInfo(ResourceGainer gainer)
+    public void ShowGainerPanel(ResourceGainer gainer)
     {
         if (AreModalWindowOpened()) return;
 
         buildingInfo.Show(gainer);
+    }
+
+    public void ShowWorkshopPanel()
+    {
+        if (AreModalWindowOpened()) return;
+        workshopPanel.Show();
     }
 
 

@@ -22,6 +22,8 @@ public class CraftingQueue : MonoBehaviour
     public float Remaining => IsActive ? Mathf.Max(0f, Duration - Elapsed) : 0f;
     public bool IsCompleted => IsActive && Elapsed >= Duration;
 
+    public ComponentData CurrentData { get; private set; }
+
     private DateTime _startTime;
     private bool _completedOffline;
 
@@ -55,6 +57,7 @@ public class CraftingQueue : MonoBehaviour
             return false;
         }
 
+        CurrentData = data;
         CurrentType = data.type;
         Duration = data.craftDuration;
         _startTime = DateTime.UtcNow;
@@ -71,6 +74,7 @@ public class CraftingQueue : MonoBehaviour
         IsActive = false;
         ClearState();
         OnCraftCancelled?.Invoke();
+        CurrentData = null;
     }
 
     // ─── Internal ──────────────────────────────────────────────────
@@ -83,6 +87,7 @@ public class CraftingQueue : MonoBehaviour
         ClearState();
         InventoryManager.Instance.AddComponent(type, 1);
         OnCraftCompleted?.Invoke(type);
+        CurrentData = null;
     }
 
     // ─── Persistence ───────────────────────────────────────────────

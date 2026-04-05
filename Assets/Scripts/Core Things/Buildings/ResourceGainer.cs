@@ -84,7 +84,7 @@ public class ResourceGainer : MonoBehaviour, IClickableBuilding
 
     public void OnClick()
     {
-        UIManager.Instance.ShowBuildingInfo(this);
+        UIManager.Instance.ShowGainerPanel(this);
     }
 
 }

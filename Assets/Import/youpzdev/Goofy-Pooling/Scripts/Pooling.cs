@@ -25,7 +25,7 @@ public static class Pooling
             prefabMap[obj] = prefab;
         }
 
-        if (parent != null) obj.transform.SetParent(parent);
+        if (parent != null) obj.transform.SetParent(parent, false);
 
         return obj;
     }
