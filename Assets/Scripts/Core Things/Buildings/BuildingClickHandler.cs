@@ -2,17 +2,15 @@ using UnityEngine;
 
 public class BuildingClickHandler : MonoBehaviour
 {
-    [SerializeField] private ResourceGainer resourceGainer;
+    private IClickableBuilding building;
+
+    private void Awake()
+    {
+        building = GetComponentInParent<IClickableBuilding>();
+    }
 
     private void OnMouseDown()
     {
-        UIManager.Instance.ShowBuildingInfo(resourceGainer);
+        building?.OnClick();
     }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        if (resourceGainer == null) resourceGainer = GetComponentInParent<ResourceGainer>();
-    }
-#endif
 }

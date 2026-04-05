@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class ResourceGainer : MonoBehaviour
+public class ResourceGainer : MonoBehaviour, IClickableBuilding
 {
     [SerializeField] private BuildingData buildingData;
 
@@ -80,6 +80,11 @@ public class ResourceGainer : MonoBehaviour
         gainTime = buildingData.gainResources[level - 1].gainTime;
         EventBus<ResourcesChangedEvent>.Raise(new ResourcesChangedEvent { Gainer = this });
         EventBus<LevelChangedEvent>.Raise(new LevelChangedEvent { Gainer = this });
+    }
+
+    public void OnClick()
+    {
+        UIManager.Instance.ShowBuildingInfo(this);
     }
 
 }
