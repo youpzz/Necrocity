@@ -82,8 +82,4 @@ public class ResourceGainer : MonoBehaviour
         EventBus<LevelChangedEvent>.Raise(new LevelChangedEvent { Gainer = this });
     }
 
-    void OnMouseDown()
-    {
-        UIManager.Instance.ShowBuildingInfo(this);
-    }
 }
